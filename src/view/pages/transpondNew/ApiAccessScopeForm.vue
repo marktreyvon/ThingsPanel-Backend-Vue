@@ -8,132 +8,114 @@
     class="el-dark-dialog"
     :close-on-click-modal="false"
     :before-close="handleClose"
-    :visible.sync="dataGatewayDialogVisible"
-    width="30%"
+    :visible.sync="apiDialogVisible"
+    width="40%"
     height="60%"
     top="10vh"
   >
-    <el-form
-      ref="CreateForm"
-      label-position="left"
-      label-width="140px"
-      style="margin-left: 5%"
-      :model="form"
-    >
-      <el-form-item :label="$t('RULE_ENGINE.DATA_GATEWAY.NAME')" required>
-        <el-col :span="20">
-          <el-input ref="nameRef" v-model="form.name"></el-input>
-        </el-col>
-      </el-form-item>
-
-      <el-form-item
-        :label="$t('RULE_ENGINE.DATA_GATEWAY.SIGN_METHOD')"
-        required
-      >
-        <el-col :span="20">
+    <div class="rounded p-4 card">
+      <el-row type="flex" :gutter="20" class="pt-3 pb-4 px-3">
+        <el-col :span="24">
           <el-select
-            style="width: 100%"
+            style="width: 20%"
             class="el-dark-input"
-            v-model="form.sign_method"
+            placeholder="未添加"
           >
-            <el-option
-              class="el-dark-input"
-              v-for="item in signMethodChoice"
-              :key="item"
-              :label="item"
-              :value="item"
+            <!-- <el-option
+              class="el-dark"
+              value="-1"
+              style="display: none;"
             ></el-option>
-          </el-select>
-        </el-col>
-      </el-form-item>
-
-      <el-form-item
-        :label="$t('RULE_ENGINE.DATA_GATEWAY.IP_WHITELIST')"
-        required
-      >
-        <el-col :span="20">
-          <el-input
-            class="el-dark-input"
-            type="textarea"
-            ref="nameRef"
-            rows="4"
-            v-model="form.ip_whitelist"
-          ></el-input>
-        </el-col>
-      </el-form-item>
-
-      <el-form-item
-        :label="$t('RULE_ENGINE.DATA_GATEWAY.DEVICE_ACCESS_SCOPE')"
-        required
-      >
-        <el-col :span="20">
-          <el-select
-            style="width: 100%"
-            class="el-dark-input"
-            v-model="form.device_access_scope"
-          >
             <el-option
               class="el-dark"
               v-for="item in deviceAccessScopeChoice"
               :key="item.value"
               :label="item.name"
               :value="item.value"
-            ></el-option>
+            ></el-option> -->
           </el-select>
-        </el-col>
-      </el-form-item>
 
-      <el-form-item
-        :label="$t('RULE_ENGINE.DATA_GATEWAY.API_ACCESS_SCOPE')"
-        required
-      >
-        <el-col :span="20">
           <el-select
-            style="width: 100%"
+            style="width: 20%"
             class="el-dark-input"
-            v-model="form.api_access_scope"
+            placeholder="全部项目"
+            
           >
-            <el-option
-              class="el-dark-input"
-              v-for="item in apiAccessScopeChoice"
+            <!-- <el-option
+              class="el-dark"
+              v-for="item in deviceAccessScopeChoice"
               :key="item.value"
               :label="item.name"
               :value="item.value"
-            ></el-option>
+            ></el-option> -->
+          </el-select>
+
+          <el-select
+            style="width: 20%"
+            class="el-dark-input"
+            placeholder="全部分组"
+          >
+            <!-- <el-option
+              class="el-dark"
+              v-for="item in deviceAccessScopeChoice"
+              :key="item.value"
+              :label="item.name"
+              :value="item.value"
+            ></el-option> -->
           </el-select>
         </el-col>
-      </el-form-item>
+      </el-row>
 
-      <el-form-item :label="$t('RULE_ENGINE.DATA_GATEWAY.DESCRIPTION')">
-        <el-col :span="20">
-          <el-input
-            class="el-dark-input"
-            ref="descRef"
-            type="textarea"
-            v-model="form.description"
-          ></el-input>
-        </el-col>
-      </el-form-item>
+      <el-table :data="tableData" v-loading="loading">
+        <el-table-column
+          :label="$t('RULE_ENGINE.DATA_GATEWAY.DEVICE_NAME')"
+          prop="name"
+        ></el-table-column>
 
-      <div style="display: flex; justify-content: center">
-        <el-button
-          class="cancel-button"
-          type="cancel"
-          size="medium"
-          plain
-          @click="cancelDialog"
-          >{{ $t("RULE_ENGINE.DATA_GATEWAY.CANCEL") }}</el-button
+        <el-table-column
+          :label="$t('RULE_ENGINE.DATA_GATEWAY.PROJECT_NAME')"
+          prop="name"
+        ></el-table-column>
+
+        <el-table-column
+          :label="$t('RULE_ENGINE.DATA_GATEWAY.GROUP_NAME')"
+          prop="name"
+        ></el-table-column>
+
+        <el-table-column
+          prop="actions"
+          :label="$t('RULE_ENGINE.DATA_GATEWAY.OPERATION')"
+          align="left"
+          width="320px"
         >
-        <el-button
-          style="margin-left: 10px"
-          class="medium"
-          type="save"
-          size="medium"
-          @click="onSubmit"
-          >{{ $t("RULE_ENGINE.DATA_GATEWAY.SUBMIT") }}</el-button
-        >
+          <template v-slot="scope">
+            <el-button
+              size="mini"
+              type="indigo"
+              @click="handleSetStatus(scope.row)"
+              >{{ $t("RULE_ENGINE.DATA_GATEWAY.ADD") }}</el-button
+            >
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <div class="text-right py-3">
+        <el-pagination
+          background
+          layout="prev, pager, next"
+          :total="data_count"
+          :current-page.sync="page"
+          :page-size="per_page"
+          @current-change="page_change"
+        ></el-pagination>
       </div>
-    </el-form>
+
+      <div>
+        <el-button size="mini" type="indigo" @click="handleClose">{{
+          $t("RULE_ENGINE.DATA_GATEWAY.CLOSE")
+        }}</el-button>
+      </div>
+    </div>
   </el-dialog>
 </template>
 
@@ -150,19 +132,6 @@ import {
   getTranspondNewDetail,
 } from "@/api/transpondNew";
 // const required = true;
-const upCodeTemp =
-  " function encodeInp(msg, topic){\n" +
-  "    // 将设备自定义msg（自定义形式）数据转换为json形式数据, 设备上报数据到物联网平台时调用\n" +
-  "    // 入参：topic string 设备上报消息的 topic\n" +
-  "    // 入参：msg byte[] 数组 不能为空\n" +
-  "    // 出参：string\n" +
-  "    // 处理完后将对象转回字符串形式\n" +
-  "    // 例，byte[]转string：var msgString = String.fromCharCode.apply(null, msg);\n" +
-  "    // 例，string转jsonObj：msgJson = JSON.parse(msgString);\n" +
-  "    // 例，jsonObj转string：msgString = JSON.stringify(msgJson);\n" +
-  "    var msgString = String.fromCharCode.apply(null, msg);\n" +
-  "    return msgString;\n" +
-  " }";
 export default {
   name: "CreateForm",
   components: { DeviceTypeSelector, CodeEditor, MqttContent, UrlContent },
@@ -182,7 +151,7 @@ export default {
     },
   },
   computed: {
-    dataGatewayDialogVisible: {
+    apiDialogVisible: {
       get() {
         return this.visible;
       },
@@ -495,7 +464,7 @@ export default {
           if (res.data.code === 200) {
             this.$emit("submit");
             this.listData = [];
-            this.dataGatewayDialogVisible = false;
+            this.apiDialogVisible = false;
             this.$message({
               message: "新建成功",
               center: true,
@@ -508,7 +477,7 @@ export default {
           if (res.data.code === 200) {
             this.$emit("submit");
             this.listData = [];
-            this.dataGatewayDialogVisible = false;
+            this.apiDialogVisible = false;
             this.$message({
               message: "编辑成功",
               center: true,
@@ -521,12 +490,12 @@ export default {
     handleClose() {
       this.form = {};
       this.listData = [];
-      this.dataGatewayDialogVisible = false;
+      this.apiDialogVisible = false;
     },
     cancelDialog() {
       this.form = {};
       this.listData = [];
-      this.dataGatewayDialogVisible = false;
+      this.apiDialogVisible = false;
     },
     validate() {
       if (!this.form.name || this.form.name === "") {

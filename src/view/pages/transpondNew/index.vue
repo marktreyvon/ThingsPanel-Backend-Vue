@@ -2,157 +2,312 @@
   <div class="rounded p-4 card">
     <el-row type="flex" :gutter="20" class="pt-3 pb-4 px-3">
       <el-col :span="12">
-        <TableTitle>{{ $t("RULE_ENGINE.DATA_FORWARDINGNEW.TRANSPOND")}}</TableTitle>
+        <TableTitle>{{
+          $t("RULE_ENGINE.DATA_GATEWAY.DATA_GATEWAY")
+        }}</TableTitle>
       </el-col>
       <el-col :span="12" class="px-2 text-right">
-        <el-button size="medium" type="border" @click="handleShowAdd">{{ $t("RULE_ENGINE.DATA_FORWARDINGNEW.CREATINGFORWARDINGRULE")}}</el-button>
-       
+        <el-button size="medium" type="border" @click="handleCreate">{{
+          $t("RULE_ENGINE.DATA_GATEWAY.CREATE")
+        }}</el-button>
       </el-col>
     </el-row>
-  
+
     <el-table :data="tableData" v-loading="loading">
-      <el-table-column :label="$t('RULE_ENGINE.DATA_FORWARDINGNEW.NO')" type="index" width="100"></el-table-column>
-      <el-table-column prop="name" :label="$t('RULE_ENGINE.DATA_FORWARDINGNEW.RULE_NAME')"></el-table-column>
-      <el-table-column prop="desc" :label="$t('RULE_ENGINE.DATA_FORWARDINGNEW.RULE_DESCRIBE')"></el-table-column>
-      <el-table-column prop="create_time" :label="$t('RULE_ENGINE.DATA_FORWARDINGNEW.CREATEDATE')">
+      <el-table-column
+        :label="$t('RULE_ENGINE.DATA_GATEWAY.NAME')"
+        prop="name"
+      ></el-table-column>
+      <el-table-column
+        prop="app_key"
+        :label="$t('RULE_ENGINE.DATA_GATEWAY.APP_KEY')"
+        width="170px"
+        v-slot="scope"
+      >
+        <el-row type="flex" justify="end">
+          <el-col>
+            {{ scope.row.app_key }}
+          </el-col>
+          <el-col>
+            <el-button
+              size="mini"
+              type="success"
+              style=""
+              v-clipboard:copy="scope.row.app_key"
+              >{{ $t("RULE_ENGINE.DATA_GATEWAY.COPY") }}</el-button
+            >
+          </el-col>
+        </el-row>
+      </el-table-column>
+      <el-table-column
+        prop="signature_mode"
+        :label="$t('RULE_ENGINE.DATA_GATEWAY.SIGN_METHOD')"
+      ></el-table-column>
+      <el-table-column
+        prop="ip_whitelist"
+        :label="$t('RULE_ENGINE.DATA_GATEWAY.IP_WHITELIST')"
+      ></el-table-column>
+      <el-table-column
+        prop="device_access_scope"
+        :label="$t('RULE_ENGINE.DATA_GATEWAY.DEVICE_ACCESS_SCOPE')"
+        :span="12"
+        v-slot="scope"
+      >
+        <span v-if="scope.row.device_access_scope == 1">{{
+          $t("RULE_ENGINE.DATA_GATEWAY.ALL")
+        }}</span>
+        <span v-else-if="scope.row.device_access_scope == 2">{{
+          $t("RULE_ENGINE.DATA_GATEWAY.PART")
+        }}</span>
+        <span v-else>error</span>
+        <el-button
+          size="mini"
+          type="success"
+          style="margin-left: 10px"
+          :disabled="scope.row.device_access_scope == 1"
+          @click="handleShowDeviceDialog(scope.row)"
+          >{{ $t("RULE_ENGINE.DATA_GATEWAY.CHOOSE") }}</el-button
+        ></el-table-column
+      >
+      <el-table-column
+        prop="api_access_scope"
+        :label="$t('RULE_ENGINE.DATA_GATEWAY.API_ACCESS_SCOPE')"
+        width="120px"
+        v-slot="scope"
+      >
+        <span v-if="scope.row.api_access_scope == 1">{{
+          $t("RULE_ENGINE.DATA_GATEWAY.ALL")
+        }}</span>
+        <span v-else-if="scope.row.api_access_scope == 2">{{
+          $t("RULE_ENGINE.DATA_GATEWAY.PART")
+        }}</span>
+        <span v-else>error</span>
+        <el-button
+          size="mini"
+          type="success"
+          style="margin-left: 10px"
+          :disabled="scope.row.api_access_scope == 1"
+          @click="handleShowApiDialog(scope.row)"
+          >{{ $t("RULE_ENGINE.DATA_GATEWAY.CHOOSE") }}</el-button
+        >
+      </el-table-column>
+      <el-table-column
+        prop="description"
+        :label="$t('RULE_ENGINE.DATA_GATEWAY.DESCRIPTION')"
+      ></el-table-column>
+      <el-table-column
+        prop="created_at"
+        :label="$t('RULE_ENGINE.DATA_GATEWAY.CREATED_AT')"
+      >
         <template v-slot="scope">
-          {{ formatDate(scope.row.create_time) }}
+          {{ formatDate(scope.row.created_at) }}
         </template>
       </el-table-column>
-      <el-table-column prop="status" :label="$t('RULE_ENGINE.DATA_FORWARDINGNEW.TNTERFACESTATUS')">
+      <el-table-column
+        prop="actions"
+        :label="$t('RULE_ENGINE.DATA_GATEWAY.OPERATION')"
+        align="left"
+        width="320px"
+      >
         <template v-slot="scope">
-          <el-tag size="small">{{scope.row.status == 1 ? $t('RULE_ENGINE.DATA_FORWARDINGNEW.SRARTED') : $t('RULE_ENGINE.DATA_FORWARDINGNEW.PUTONHOLD')}}</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column prop="actions" :label="$t('RULE_ENGINE.DATA_FORWARDINGNEW.OPERATION')" align="left" width="320px">
-        <template v-slot="scope">
-          <el-button size="mini" v-if="scope.row.status == 0" type="success" @click="handleSetStatus(scope.row)">{{ $t("RULE_ENGINE.DATA_FORWARDINGNEW.START")}}</el-button>
-          <el-button size="mini" v-if="scope.row.status == 1"  type="yellow" @click="handleSetStatus(scope.row)">{{ $t("RULE_ENGINE.DATA_FORWARDINGNEW.SUSPENDED")}}</el-button>
-          <el-button class="mr-3" size="mini" type="indigo" @click="handleShowEdit(scope.row)">{{ $t("RULE_ENGINE.DATA_FORWARDINGNEW.EDIT")}}</el-button>
-          <el-popconfirm :title="$t('RULE_ENGINE.DATA_FORWARDINGNEW.TITLE4')" @confirm="handle_del(scope.row.id)">
-            <el-button slot="reference" size="mini" type="danger">{{ $t("RULE_ENGINE.DATA_FORWARDINGNEW.DELETE")}}</el-button>
+          <el-button
+            size="mini"
+            type="indigo"
+            @click="handleSetStatus(scope.row)"
+            >{{ $t("RULE_ENGINE.DATA_GATEWAY.VIEW_KEY") }}</el-button
+          >
+          <el-button
+            class="mr-3"
+            size="mini"
+            type="indigo"
+            @click="handleShowEdit(scope.row)"
+            >{{ $t("RULE_ENGINE.DATA_GATEWAY.EDIT") }}</el-button
+          >
+
+          <el-popconfirm
+            class="mr-1"
+            :title="$t('AUTOMATION.TITLE4')"
+            @confirm="handleDelete(scope.row)"
+          >
+            <el-button
+              slot="reference"
+              class="mr-3"
+              size="mini"
+              type="danger"
+              >{{ $t("RULE_ENGINE.DATA_GATEWAY.DELETE") }}</el-button
+            >
           </el-popconfirm>
         </template>
       </el-table-column>
     </el-table>
-  
+
     <div class="text-right py-3">
       <el-pagination
-          background
-          layout="prev, pager, next"
-          :total="data_count"
-          :current-page.sync="page"
-          :page-size="per_page"
-          @current-change="page_change"></el-pagination>
+        background
+        layout="prev, pager, next"
+        :total="data_count"
+        :current-page.sync="page"
+        :page-size="per_page"
+        @current-change="page_change"
+      ></el-pagination>
     </div>
-  
-    <CreateForm :visible.sync="dialogVisible" :id="formId" @submit="get_data"/>
+
+    <CreateForm
+      :visible.sync="dataGatewayDialogVisible"
+      :data="formData"
+      :id="formId"
+      @submit="get_data"
+    />
+
+    <ApiAccessScopeForm
+      :visible.sync="apiDialogVisible"
+      :data="formData"
+      :id="formId"
+      @submit="get_data"
+    />
   </div>
-  </template>
-  
-  <script>
-  import CreateForm from "@/view/pages/transpondNew/CreateForm.vue";
-  import TableTitle from "@/components/common/TableTitle.vue"
-  import {getTranspondNewList,getTranspondNewStatus,getTranspondNewDelete} from "@/api/transpondNew";
-  import "@/core/mixins/common"
-  import { message_success } from '@/utils/helpers';
-  export default {
-    name: "TranspondNew",
-    components: {
-      CreateForm,
-      TableTitle,
-    },
-    data:()=>({
-      dialogVisible:false,
-      formId:'',
-      loading: false,
-      per_page: 10,
-      page: 1,
-      data_count:2,
-      tableData: [],
-    }),
-    created() {
-      this.get_data()
-    },
-    methods: {
-      get_data(){
-        let page = {
-          "current_page": this.page,
-          "per_page":10,
+</template>
+
+<script>
+import ApiAccessScopeForm from "@/view/pages/transpondNew/ApiAccessScopeForm.vue";
+import CreateForm from "@/view/pages/transpondNew/CreateForm.vue";
+import TableTitle from "@/components/common/TableTitle.vue";
+import {
+  getTranspondNewStatus,
+  getTranspondNewDelete,
+} from "@/api/transpondNew";
+import { getOpenApiPermissionList } from "@/api/dataGateway";
+import "@/core/mixins/common";
+import { message_success } from "@/utils/helpers";
+export default {
+  name: "TranspondNew",
+  components: {
+    CreateForm,
+    TableTitle,
+    ApiAccessScopeForm,
+  },
+  data: () => ({
+    dataGatewayDialogVisible: false,
+    apiDialogVisible: false,
+    deviceDialogVisible: false,
+    formId: "",
+    formData: null,
+    loading: false,
+    per_page: 10,
+    page: 1,
+    data_count: 2,
+    tableData: [
+      {
+        id: "111",
+        name: "11bbb",
+        app_key: "1132245",
+        signature_mode: "MD5",
+        ip_whitelist: "11.12.23.12|33.33.33.33",
+        device_access_scope: 2,
+        api_access_scope: 1,
+        created_at: 1687325491,
+        tenant_id: "b9ccb761",
+        description: "1111b9ccb7612222",
+      },
+      {
+        id: "3123124",
+        name: "b1241241241bb",
+        app_key: "32ssssssssss45",
+        signature_mode: "AES-256",
+        ip_whitelist: "10.12.23.12|33.33.33.33",
+        device_access_scope: 1,
+        api_access_scope: 2,
+        created_at: 1687325491,
+        tenant_id: "b9ccb761",
+        description: "b9ccb7612222",
+      },
+    ],
+  }),
+  created() {
+    this.get_data();
+  },
+  methods: {
+    get_data() {
+      let page = {
+        current_page: this.page,
+        per_page: 10,
+      };
+      getOpenApiPermissionList(page).then((res) => {
+        console.log(res);
+        if (res.code == 200) {
+          this.tableData = res.data.data.data;
+          this.data_count = res.data.data.total;
+          this.loading = false;
         }
-        getTranspondNewList(page).then(res => {
-          if (res.status == 200) {
-            this.tableData = res.data.data.data
-            this.data_count = res.data.data.total
-            this.loading = false
-          }
-        })
-      },
-      page_change(val){
-        if(this.loading) return
-        this.loading = true
-        this.page = val
-        this.get_data()
-      },
+      });
+    },
+    page_change(val) {
+      if (this.loading) return;
+      this.loading = true;
+      this.page = val;
+      this.get_data();
+    },
 
-      //删除
-      handle_del(id){
-        getTranspondNewDelete({data_transpond_id:id}).then(res => {
-          if (res.data.code === 200) {
-            this.get_data()
-            this.$message({message: "删除成功", center: true, type: "success"})
-          }
-        })
-      },
+    //删除
+    handle_del(id) {
+      getTranspondNewDelete({ data_transpond_id: id }).then((res) => {
+        if (res.data.code === 200) {
+          this.get_data();
+          this.$message({ message: "删除成功", center: true, type: "success" });
+        }
+      });
+    },
 
-      //新建弹框
-      handleShowAdd() {
-        this.formId = ''
-        this.dialogVisible = true;
-      },
-      //编辑弹框
-      handleShowEdit(item) {
-        this.formId = item.id;
-        this.dialogVisible = true;
-      },
-     
-       //启动
-      // handle_launch(item) {
-      //   getTranspondNewStatus({data_transpond_id:item.id,switch:1}).then(res => {
-      //     if (res.data.code === 200) {
-      //       this.get_data()
-      //       this.$message({message: "启动成功", center: true, type: "success"})
-      //     }
-      //   })
-      // },
-      // //关闭
-      // handle_pause(item) {
-      //   getTranspondNewStatus({data_transpond_id:item.id,switch:0}).then(res => {
-      //     if (res.data.code === 200) {
-      //       this.get_data()
-      //       this.$message({message: "暂停成功", center: true, type: "success"})
-      //     }
-      //   })
-      // },
+    //新建弹框
+    handleCreate() {
+      this.formId = "";
+      this.dataGatewayDialogVisible = true;
+      console.log(this);
+    },
+    //编辑弹框
+    handleShowEdit(item) {
+      this.formId = item.id;
+      this.formData = item;
+      this.dataGatewayDialogVisible = true;
+      console.log(this);
+    },
+    //编辑接口访问范围对话框
+    handleShowApiDialog(item) {
+      this.formId = item.id;
+      this.formData = item;
+      this.apiDialogVisible = true;
+    },
+    //编辑设备访问范围对话框
+    handleShowDeviceDialog(item) {
+      this.formId = item.id;
+      this.formData = item;
+      this.deviceDialogVisible = true;
+    },
 
-      handleSetStatus(item) {
-        let status = item.status === 0 ? 1 : 0;
-      
-        getTranspondNewStatus({data_transpond_id:item.id,switch:status}).then(res => {
-          if (res.data.code === 200) {
-            this.get_data()
-            message_success(
-              status === 1 ? this.$t("AUTOMATION.ENABLED") : this.$t("AUTOMATION.DISABLED"));
-          }
-        })
-      }
-    }
-  }
-  </script>
-  
-  <style scoped>
-  /deep/ .el-tag {
-    border: 1px solid;
-    background-color: transparent;
-  }
-  </style>
+    handleSetStatus(item) {
+      let status = item.status === 0 ? 1 : 0;
+
+      getTranspondNewStatus({
+        data_transpond_id: item.id,
+        switch: status,
+      }).then((res) => {
+        if (res.data.code === 200) {
+          this.get_data();
+          message_success(
+            status === 1
+              ? this.$t("AUTOMATION.ENABLED")
+              : this.$t("AUTOMATION.DISABLED")
+          );
+        }
+      });
+    },
+  },
+};
+</script>
+
+<style scoped>
+/deep/ .el-tag {
+  border: 1px solid;
+  background-color: transparent;
+}
+</style>

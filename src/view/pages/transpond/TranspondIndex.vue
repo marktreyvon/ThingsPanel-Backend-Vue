@@ -1,5 +1,6 @@
 <template>
 <div class="rounded p-4 card">
+  <h1>44444444</h1>
   <el-row type="flex" :gutter="20" class="pt-3 pb-4 px-3">
     <el-col :span="12">
       <TableTitle>{{ $t("RULE_ENGINE.DATA_FORWARDING.TRANSPOND")}}</TableTitle>
@@ -20,7 +21,12 @@
     </el-table-column>
     <el-table-column prop="actions" :label="$t('RULE_ENGINE.DATA_FORWARDING.OPERATION')" align="left" width="320px">
       <template v-slot="scope">
-        <el-button size="mini" type="success" @click="handle_launch(scope.row)">{{ $t("RULE_ENGINE.DATA_FORWARDING.START")}}</el-button>
+          <el-button
+            size="mini"
+            type="success"
+            @click="handle_launch(scope.row)"
+            >{{ $t("RULE_ENGINE.DATA_FORWARDING.START") }}</el-button
+          >
         <el-button size="mini" type="yellow" @click="handle_pause(scope.row)">{{ $t("RULE_ENGINE.DATA_FORWARDING.SUSPENDED")}}</el-button>
         <el-button class="mr-3" size="mini" type="indigo" @click="startEditor(scope.row)">{{ $t("RULE_ENGINE.DATA_FORWARDING.EDIT")}}</el-button>
 

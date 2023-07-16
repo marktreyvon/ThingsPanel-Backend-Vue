@@ -232,6 +232,27 @@
       </li>
     </router-link>
 
+    <!-- 数据网关 -->
+    <router-link
+        to="/date-gateway/index"
+        v-slot="{ href, navigate, isActive, isExactActive }"
+    >
+      <li
+          aria-haspopup="true"
+          data-menu-toggle="hover"
+          class="menu-item adminmeue"
+          :class="[
+          isActive && 'menu-item-active',
+          isExactActive && 'menu-item-active',
+        ]"
+      >
+        <a :href="href" class="menu-link" @click="navigate">
+          <i class="menu-icon flaticon-share"></i>
+          <span class="menu-text">数据网关</span>
+        </a>
+      </li>
+    </router-link>
+
     <!-- 固件升级 -->
     <router-link
         to="/firmware/index"
