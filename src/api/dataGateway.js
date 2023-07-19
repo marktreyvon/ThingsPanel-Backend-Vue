@@ -2,55 +2,17 @@ import axios from "./interceptor/http";
 
 //OpenApi授权列表分页查询（创建时间倒叙排列，名称模糊匹配）
 export function getOpenApiPermissionList(data) {
-  // return axios({
-  //     url: "/tp_data/transpond/list",
-  //     method: "post",
-  //     data
-  // })
-  console.log(11111111111111111111111111111111)
-
-  return {
-    code: 200,
-    message: "success",
-    1: data,
-    data: {
-      current_page: 1,
-      per_page: 10,
-      data: [
-        {
-          id: "2222",
-          name: "bbb",
-          app_key: "3245",
-          signature_mode: "MQTT",
-          ip_whitelist: "10.12.23.12|33.33.33.33",
-          device_access_scope: 1,
-          api_access_scope: 2,
-          created_at: 1687325491,
-          tenant_id: "b9ccb761",
-          description: "b9ccb7612222",
-        },
-        {
-          id: "3123124",
-          name: "b1241241241bb",
-          app_key: "3245",
-          signature_mode: "MQTT",
-          ip_whitelist: "10.12.23.12|33.33.33.33",
-          device_access_scope: 1,
-          api_access_scope: 2,
-          created_at: 1687325491,
-          tenant_id: "b9ccb761",
-          description: "b9ccb7612222",
-        },
-      ],
-      total: 10,
-    },
-  };
+  return axios({
+    url: "/openapi/auth/list",
+    method: "get",
+    data,
+  });
 }
 
 // 新增OpenApi授权（新增时候生成app_key和密钥）
 export function createOpenApiPermission(data) {
   return axios({
-    url: "/tp_data/transpond/switch",
+    url: "/openapi/auth/add",
     method: "post",
     data,
   });

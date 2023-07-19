@@ -176,19 +176,17 @@
 </template>
 
 <script>
-import ApiAccessScopeForm from "@/view/pages/transpondNew/ApiAccessScopeForm.vue";
-import DeviceAccessScopeForm from "@/view/pages/transpondNew/DeviceAccessScopeForm.vue";
-import CreateForm from "@/view/pages/transpondNew/CreateForm.vue";
+import ApiAccessScopeForm from "@/view/pages/datagateway/ApiAccessScopeForm.vue";
+import DeviceAccessScopeForm from "@/view/pages/datagateway/DeviceAccessScopeForm.vue";
+import CreateForm from "@/view/pages/datagateway/CreateForm.vue";
 import TableTitle from "@/components/common/TableTitle.vue";
 import {
-  getTranspondNewStatus,
-  getTranspondNewDelete,
-} from "@/api/transpondNew";
-import { getOpenApiPermissionList } from "@/api/dataGateway";
+  getOpenApiPermissionList,
+  deleteOpenApiPermission,
+} from "@/api/dataGateway";
 import "@/core/mixins/common";
-import { message_success } from "@/utils/helpers";
 export default {
-  name: "TranspondNew",
+  name: "DataGateway",
   components: {
     CreateForm,
     TableTitle,
@@ -233,8 +231,6 @@ export default {
     ],
   }),
   created() {
-    console.log("____________________________________________________________");
-    console.log(this.$router.options.routes);
     this.get_data();
   },
   methods: {
@@ -261,7 +257,7 @@ export default {
 
     //删除
     handle_del(id) {
-      getTranspondNewDelete({ data_transpond_id: id }).then((res) => {
+      deleteOpenApiPermission({ data_transpond_id: id }).then((res) => {
         if (res.data.code === 200) {
           this.get_data();
           this.$message({ message: "删除成功", center: true, type: "success" });
@@ -294,31 +290,8 @@ export default {
       this.formData = item;
       this.deviceDialogVisible = true;
     },
-
-    handleSetStatus(item) {
-      let status = item.status === 0 ? 1 : 0;
-
-      getTranspondNewStatus({
-        data_transpond_id: item.id,
-        switch: status,
-      }).then((res) => {
-        if (res.data.code === 200) {
-          this.get_data();
-          message_success(
-            status === 1
-              ? this.$t("AUTOMATION.ENABLED")
-              : this.$t("AUTOMATION.DISABLED")
-          );
-        }
-      });
-    },
   },
 };
 </script>
 
-<style scoped>
-/deep/ .el-tag {
-  border: 1px solid;
-  background-color: transparent;
-}
-</style>
+<style scoped></style>

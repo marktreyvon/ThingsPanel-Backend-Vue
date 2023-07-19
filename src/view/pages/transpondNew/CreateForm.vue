@@ -27,14 +27,14 @@
       </el-form-item>
 
       <el-form-item
-        :label="$t('RULE_ENGINE.DATA_GATEWAY.SIGN_METHOD')"
+        :label="$t('RULE_ENGINE.DATA_GATEWAY.SIGNATURE_MODE')"
         required
       >
         <el-col :span="20">
           <el-select
             style="width: 100%"
             class="el-dark-input"
-            v-model="form.sign_method"
+            v-model="form.signature_mode"
           >
             <el-option
               class="el-dark-input"
@@ -139,10 +139,6 @@
 
 <script>
 // import options from './cascader_options'
-import MqttContent from "@/view/pages/transpondNew/MqttContent.vue";
-import UrlContent from "@/view/pages/transpondNew/UrlContent.vue";
-import CodeEditor from "simple-code-editor";
-import DeviceTypeSelector from "./components/device/DeviceTypeSelector.vue";
 import { message_error } from "@/utils/helpers";
 import {
   getTranspondNewAdd,
@@ -150,22 +146,8 @@ import {
   getTranspondNewDetail,
 } from "@/api/transpondNew";
 // const required = true;
-const upCodeTemp =
-  " function encodeInp(msg, topic){\n" +
-  "    // 将设备自定义msg（自定义形式）数据转换为json形式数据, 设备上报数据到物联网平台时调用\n" +
-  "    // 入参：topic string 设备上报消息的 topic\n" +
-  "    // 入参：msg byte[] 数组 不能为空\n" +
-  "    // 出参：string\n" +
-  "    // 处理完后将对象转回字符串形式\n" +
-  "    // 例，byte[]转string：var msgString = String.fromCharCode.apply(null, msg);\n" +
-  "    // 例，string转jsonObj：msgJson = JSON.parse(msgString);\n" +
-  "    // 例，jsonObj转string：msgString = JSON.stringify(msgJson);\n" +
-  "    var msgString = String.fromCharCode.apply(null, msg);\n" +
-  "    return msgString;\n" +
-  " }";
 export default {
   name: "CreateForm",
-  components: { DeviceTypeSelector, CodeEditor, MqttContent, UrlContent },
   props: {
     // handle_create:{
     //   request: true,
@@ -249,8 +231,8 @@ export default {
       app_key: "",
       signature_mode: "",
       ip_whitelist: "",
-      device_access_scope: 0,
-      api_access_scope: 0,
+      device_access_scope: 1,
+      api_access_scope: 1,
       created_at: 0,
       tenant_id: "",
       description: "",
